@@ -10,9 +10,16 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
+
+/**
+ * @author Ryan Kendricks
+ * Date: 04/15/2024
+ */
 public class SearchAndClearCart {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         // Set Chrome Driver
         System.setProperty("webdriver.chrome.driver", "C:\\test\\chromedriver.exe");
@@ -87,18 +94,16 @@ public class SearchAndClearCart {
             System.out.println("Last Add To Cart Button is not displayed. Cannot click.");
         }
 
+        // Need to go to the Home page before cart to see the product in the cart. Don't know why, but this works
+        driver.get("https://www.webstaurantstore.com/");
         // Go to Cart
         driver.get("https://www.webstaurantstore.com/cart/");
 
         // Empty Cart.
         WebDriverWait wait = new WebDriverWait(driver, 5);
         WebElement clearItem = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@class='deleteCartItemButton itemDelete__link itemDelete--positioning']")));
-        if (clearItem.isDisplayed()) {
-            clearItem.click();
-            System.out.println("Clicked Product Remove X Button");
-        } else {
-            System.out.println("Clicked Product Remove X Button is not displayed. Cannot click.");
-        }
+        clearItem.click();
+        System.out.println("Clicked Product Remove X Button");
 
         WebElement noItem = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//p[@class='header-1']")));
         if (noItem.isDisplayed()) {
