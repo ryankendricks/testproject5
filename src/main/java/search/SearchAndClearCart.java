@@ -11,15 +11,13 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Thread.sleep;
-
 /**
  * @author Ryan Kendricks
  * Date: 04/15/2024
  */
 public class SearchAndClearCart {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
 
         // Set Chrome Driver
         System.setProperty("webdriver.chrome.driver", "C:\\test\\chromedriver.exe");
