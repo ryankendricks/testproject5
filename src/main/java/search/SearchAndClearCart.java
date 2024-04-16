@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * @author Ryan Kendricks
- * Date: 04/15/2024
+ * Date: 04/16/2024
  */
 public class SearchAndClearCart {
 
@@ -41,12 +41,7 @@ public class SearchAndClearCart {
 
         // Click Search Submit button
         WebElement submitButton = driver.findElement(By.cssSelector("button[type='submit']"));
-        if (submitButton.isDisplayed()) {
-            submitButton.click();
-            System.out.println("Clicked Search Submit Button.");
-        } else {
-            System.out.println("Search Submit Button is not displayed. Cannot click.");
-        }
+        clickElement(submitButton);
 
         // Check the search result ensuring every product has the word 'Table' in its title.
         List<WebElement> productTitles = driver.findElements(By.xpath("//span[@data-testid='itemDescription']"));
@@ -67,12 +62,7 @@ public class SearchAndClearCart {
         // Add the last of found items to Cart.
         // Click on last pagination number
         WebElement paginationLast = driver.findElement(By.xpath("//a[contains(@aria-label,'last page')]"));
-        if (paginationLast.isDisplayed()) {
-            paginationLast.click();
-            System.out.println("Clicked Last Pagination Button.");
-        } else {
-            System.out.println("Last Pagination Button is not displayed. Cannot click.");
-        }
+        clickElement(paginationLast);
 
         // Get Add to Cart Buttons for last page of products
         List<WebElement> productsAddToCart = driver.findElements(By.name("addToCartButton"));
@@ -85,12 +75,7 @@ public class SearchAndClearCart {
         jScript.executeScript("arguments[0].scrollIntoView(true);", lastAddToCart);
 
         // Click on Last Product Add To Cart Button
-        if (lastAddToCart.isDisplayed()) {
-            lastAddToCart.click();
-            System.out.println("Clicked Last Add to Cart Button.");
-        } else {
-            System.out.println("Last Add To Cart Button is not displayed. Cannot click.");
-        }
+        clickElement(lastAddToCart);
 
         // Need to go to the Home page before cart to see the product in the cart. Don't know why, but this works
         driver.get("https://www.webstaurantstore.com/");
@@ -98,22 +83,34 @@ public class SearchAndClearCart {
         driver.get("https://www.webstaurantstore.com/cart/");
 
         // Empty Cart.
-        WebDriverWait wait = new WebDriverWait(driver, 5);
-        WebElement clearItem = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@class='deleteCartItemButton itemDelete__link itemDelete--positioning']")));
-        clearItem.click();
-        System.out.println("Clicked Product Remove X Button");
+        By locator = By.xpath("//button[@class='deleteCartItemButton itemDelete__link itemDelete--positioning']");
+        boolean isRemovePresent = waitForElementVisibility(driver, locator, 10);
+        if (isRemovePresent) {
+            WebElement removeButton = driver.findElement(locator);
+            clickElement(removeButton);
+        } else {
+            System.out.println("Element not found or not visible.");
+        }
 
-        WebElement noItem = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//p[@class='header-1']")));
-        if (noItem.isDisplayed()) {
+        By emptyLocator = By.xpath("//p[@class='header-1']");
+        boolean isEmptyCart = waitForElementVisibility(driver, emptyLocator, 5);
+        if (isEmptyCart) {
+            WebElement emptyCartHeader = driver.findElement(emptyLocator);
+            emptyCartHeader.isDisplayed();
             System.out.println("Cart is empty.");
         } else {
-            System.out.println("Cart is NOY empty.");
+            System.out.println("Cart is not empty.");
         }
 
         // Quit Driver
         driver.quit();
     }
 
+    /**
+     * Check Product titles contain the word Table
+     * @param titles as List of String titles
+     * @return boolean true/false
+     */
     private static boolean checkTitles(List<String> titles) {
         for (String title : titles) {
             if (!title.contains("Table")) {
@@ -121,5 +118,41 @@ public class SearchAndClearCart {
             }
         }
         return true;
+    }
+
+    /**
+     * Click web element
+     * @param element as WebElement
+     * @return boolean true/false
+     */
+    private static boolean clickElement(WebElement element) {
+        if (!element.isDisplayed()) {
+            System.out.println("Element is not displayed.");
+            return false;
+        }
+        if (!element.isEnabled()) {
+            System.out.println("Element is not clickable.");
+            return false;
+        }
+        element.click();
+        System.out.println("Clicked on element successfully.");
+        return true;
+    }
+
+    /**
+     * Wait for element
+     * @param driver           as WebDriver
+     * @param locator          as Xpath
+     * @param timeoutInSeconds as int
+     * @return boolean true/false
+     */
+    private static boolean waitForElementVisibility(WebDriver driver, By locator, int timeoutInSeconds) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
